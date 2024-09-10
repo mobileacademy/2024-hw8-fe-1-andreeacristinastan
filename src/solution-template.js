@@ -57,21 +57,14 @@ function isAlreadyRevealed(i, j) {
 }
 
 function setMultipleRevealCells(boardMetadata) {
-  for (
-    let i = Number(boardMetadata.row) - 1;
-    i <= Number(boardMetadata.row) + 1;
-    i++
-  ) {
-    for (
-      let j = Number(boardMetadata.col) - 1;
-      j <= Number(boardMetadata.col) + 1;
-      j++
-    ) {
+  for (let i = boardMetadata.row - 1; i <= boardMetadata.row + 1; i++) {
+    for (let j = boardMetadata.col - 1; j <= boardMetadata.col + 1; j++) {
       if (
         i >= 0 &&
         i < rowCount &&
         j >= 0 &&
         j < colCount &&
+        !board[i][j].hasBomb &&
         board[i][j].bombsAround === 0 &&
         !isAlreadyRevealed(i, j)
       ) {
@@ -99,9 +92,7 @@ function setMultipleRevealCells(boardMetadata) {
 
 function displayCells(cells) {
   cells.forEach((cell) => {
-    const elem = document.querySelector(
-      `[data-row="${cell.row}"][data-col="${cell.col}"]`
-    );
+    const elem = document.querySelector(`[data-row="${cell.row}"][data-col="${cell.col}"]`);
     if (elem) {
       // Remove the flag icon if it exists
       let flagIcon = elem.getElementsByTagName("img")[0];
@@ -155,7 +146,7 @@ function revealCell(event) {
 
   if (elem.classList.contains("elem-safe")) {
     if (board[elem.dataset.row][elem.dataset.col].bombsAround == 0) {
-      setMultipleRevealCells(elem.dataset);
+      setMultipleRevealCells({ row: Number(elem.dataset.row), col: Number(elem.dataset.col) });
       displayCells(openedSquares);
     } else {
       if (!isAlreadyRevealed(elem.dataset.row, elem.dataset.col)) {
@@ -223,6 +214,8 @@ selectedBombProbability.addEventListener("change", () => {
 
 function generateBoard(boardMetadata) {
   squaresLeft = boardMetadata.colCount * boardMetadata.rowCount;
+  openedSquares = [];
+  board = [];
 
   /*
    *
